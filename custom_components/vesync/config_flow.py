@@ -143,8 +143,12 @@ class VeSyncFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_dhcp(self, discovery_info: dhcp.DhcpServiceInfo) -> FlowResult:
         """Handle DHCP discovery."""
-        hostname = discovery_info.hostname
+        # VeSync is a cloud account integration — if it's already configured,
+        # DHCP discovery of any Levoit device is a no-op.
+        if self._async_current_entries():
+            return self.async_abort(reason="already_configured")
 
+        hostname = discovery_info.hostname
         _LOGGER.debug("DHCP discovery detected device %s", hostname)
         self.context["title_placeholders"] = {"gateway_id": hostname}
         return await self.async_step_user()
