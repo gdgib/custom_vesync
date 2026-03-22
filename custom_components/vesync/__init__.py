@@ -61,7 +61,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
         _LOGGER.error("Unable to login to the VeSync server")
         raise ConfigEntryAuthFailed("Error logging in with username and password")
 
-    hass.data[DOMAIN] = {config_entry.entry_id: {}}
+    hass.data.setdefault(DOMAIN, {})[config_entry.entry_id] = {}
     hass.data[DOMAIN][config_entry.entry_id][VS_MANAGER] = manager
 
     # Create a DataUpdateCoordinator for the manager
@@ -85,6 +85,19 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
 
     # Store the coordinator instance in hass.data
     hass.data[DOMAIN][config_entry.entry_id]["coordinator"] = coordinator
+
+    # pyvesync appends to device lists on each update() call rather than
+    # replacing them, so after login() + update() each device appears twice.
+    # Deduplicate by CID before building the entity list.
+    for _attr in ("fans", "bulbs", "outlets", "switches", "kitchen"):
+        _device_list = getattr(manager, _attr, None)
+        if _device_list:
+            _seen: set[str] = set()
+            setattr(
+                manager,
+                _attr,
+                [d for d in _device_list if d.cid not in _seen and not _seen.add(d.cid)],  # type: ignore[func-returns-value]
+            )
 
     device_dict = await async_process_devices(hass, manager)
     platforms_list: list = []
