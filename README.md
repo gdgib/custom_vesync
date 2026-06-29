@@ -1,12 +1,9 @@
 
-# **Important message**
-> 
-> This a fork of the archived project created by [vlebourl](https://github.com/vlebourl/custom_vesync), and previously maintained by [micahqcade](https://github.com/micahqcade/). Please contribute here.
+# VeSync custom component for Home Assistant
 
-<!---[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)-->
 [![GitHub release](https://img.shields.io/github/v/release/haext/custom_vesync.svg)](https://GitHub.com/haext/custom_vesync/releases/)
 
-# VeSync custom component for Home Assistant
+> **Important:** This a fork of the archived project created by [vlebourl](https://github.com/vlebourl/custom_vesync), and previously maintained by [micahqcade](https://github.com/micahqcade/). Please contribute here.
 
 Custom component for Home Assistant to interact with smart devices via the VeSync platform.
 This integration is heavily based on [VeSync_bpo](https://github.com/borpin/vesync-bpo) and relies on [pyvesync](https://github.com/webdjoe/pyvesync) under the hood.
@@ -21,7 +18,7 @@ This integration will override the core VeSync integration.
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=haext&repository=custom_vesync&category=integration)
 
-This integration can be installed by adding this repository to HACS __AS A CUSTOM REPOSITORY__, then searching for `Custom VeSync`, and choosing install. Reboot Home Assistant and configure the 'VeSync' integration via the integrations page or press the blue button below.
+This integration can be installed by adding this repository to HACS **AS A CUSTOM REPOSITORY**, then searching for `Custom VeSync`, and choosing install. Reboot Home Assistant and configure the 'VeSync' integration via the integrations page or press the blue button below.
 
 [![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=vesync)
 
@@ -59,7 +56,7 @@ logger:
 
 ## TODO LIST
 
-```
+```markdown
 - [x] Air Fryer Properties (AirFryer158)
 - [ ] Air Fryer Methods
 - [ ] Create the Card

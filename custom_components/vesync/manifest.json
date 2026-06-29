@@ -1,29 +1,29 @@
 {
-  "domain": "vesync",
-  "name": "VeSync",
-  "codeowners": [
-    "@markperdue",
-    "@webdjoe",
-    "@thegardenmonkey",
-    "@vlebourl",
-    "@tv4you2016",
-    "@gdgib"
-  ],
-  "config_flow": true,
-  "dhcp": [
-    {
-      "hostname": "levoit-*",
-      "macaddress": "*"
-    }
-  ],
-  "documentation": "https://github.com/haext/custom_vesync",
-  "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/haext/custom_vesync/issues",
-  "loggers": [
-    "pyvesync"
-  ],
-  "requirements": [
-    "pyvesync==2.1.15"
-  ],
-  "version": "1.4.0"
+    "domain": "vesync",
+    "name": "VeSync",
+    "codeowners": [
+        "@markperdue",
+        "@webdjoe",
+        "@thegardenmonkey",
+        "@vlebourl",
+        "@tv4you2016",
+        "@gdgib"
+    ],
+    "config_flow": true,
+    "dhcp": [
+        {
+            "hostname": "levoit-*",
+            "macaddress": "*"
+        }
+    ],
+    "documentation": "https://github.com/haext/custom_vesync",
+    "iot_class": "cloud_polling",
+    "issue_tracker": "https://github.com/haext/custom_vesync/issues",
+    "loggers": [
+        "pyvesync"
+    ],
+    "requirements": [
+        "pyvesync==2.1.15"
+    ],
+    "version": "1.4.0"
 }

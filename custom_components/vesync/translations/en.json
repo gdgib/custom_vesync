@@ -32,12 +32,12 @@
         }
     },
     "options": {
-      "step": {
-        "vesync_options": {
-          "data": {
-            "polling_interval": "Polling interval (seconds)"
-          }
+        "step": {
+            "vesync_options": {
+                "data": {
+                    "polling_interval": "Polling interval (seconds)"
+                }
+            }
         }
-      }
     }
 }

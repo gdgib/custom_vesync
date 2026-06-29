@@ -1,46 +1,46 @@
 {
-  "title": "VeSync Integration for Home Assistant",
-  "device_automation": {
-    "action_type": {
-        "set_mode": "Change mode on {entity_name}"
-    }
-  },
-  "config": {
-    "flow_title": "Gateway: {gateway_id}",
-    "step": {
-      "user": {
-        "title": "VeSync Integration for Home Assistant",
-        "description": "Custom component for Home Assistant to interact with smart devices via the VeSync platform.",
-        "data": {
-          "username": "[%key:common::config_flow::data::email%]",
-          "password": "[%key:common::config_flow::data::password%]",
-          "polling_interval": "Polling interval (seconds)"
+    "title": "VeSync Integration for Home Assistant",
+    "device_automation": {
+        "action_type": {
+            "set_mode": "Change mode on {entity_name}"
         }
-      },
-      "reauth_confirm": {
-        "title": "Reauthenticate with your VeSync credentials",
-        "data": {
-          "username": "[%key:common::config_flow::data::email%]",
-          "password": "[%key:common::config_flow::data::password%]",
-          "polling_interval": "Polling interval (seconds)"
-        }
-      }
     },
-    "error": {
-      "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]"
-    },
-    "abort": {
-      "already_configured": "VeSync account is already configured",
-      "reauth_successful": "Reauthentication was successful"
-    }
-  },
-  "options": {
-    "step": {
-      "vesync_options": {
-        "data": {
-          "polling_interval": "Polling interval (seconds)"
+    "config": {
+        "flow_title": "Gateway: {gateway_id}",
+        "step": {
+            "user": {
+                "title": "VeSync Integration for Home Assistant",
+                "description": "Custom component for Home Assistant to interact with smart devices via the VeSync platform.",
+                "data": {
+                    "username": "[%key:common::config_flow::data::email%]",
+                    "password": "[%key:common::config_flow::data::password%]",
+                    "polling_interval": "Polling interval (seconds)"
+                }
+            },
+            "reauth_confirm": {
+                "title": "Reauthenticate with your VeSync credentials",
+                "data": {
+                    "username": "[%key:common::config_flow::data::email%]",
+                    "password": "[%key:common::config_flow::data::password%]",
+                    "polling_interval": "Polling interval (seconds)"
+                }
+            }
+        },
+        "error": {
+            "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]"
+        },
+        "abort": {
+            "already_configured": "VeSync account is already configured",
+            "reauth_successful": "Reauthentication was successful"
         }
-      }
+    },
+    "options": {
+        "step": {
+            "vesync_options": {
+                "data": {
+                    "polling_interval": "Polling interval (seconds)"
+                }
+            }
+        }
     }
-  }
 }

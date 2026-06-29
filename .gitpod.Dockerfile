@@ -1,4 +1,4 @@
-# trunk-ignore(hadolint/DL3007)
+# hadolint ignore=DL3007
 FROM gitpod/workspace-full:latest
 
 USER gitpod
