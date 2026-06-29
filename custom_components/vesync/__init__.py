@@ -55,7 +55,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
 
     manager = VeSync(username, password, time_zone)
 
-    login = await hass.async_add_executor_job(manager.login)
+    login = await manager.login()
 
     if not login:
         _LOGGER.error("Unable to login to the VeSync server")
@@ -68,7 +68,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     async def async_update_data():
         """Fetch data from API endpoint."""
         try:
-            await hass.async_add_executor_job(manager.update)
+            await manager.update()
         except Exception as err:
             raise UpdateFailed(f"Update failed: {err}") from err
 

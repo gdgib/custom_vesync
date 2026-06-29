@@ -1,5 +1,5 @@
 -r requirements.txt
-homeassistant==2022.7.7
+homeassistant==2025.11.0
 black
 isort
 flake8

@@ -48,7 +48,7 @@ def _setup_entities(devices, async_add_entities, coordinator):
     for dev in devices:
         if has_feature(dev, "details", "mist_virtual_level"):
             entities.append(VeSyncHumidifierMistLevelHA(dev, coordinator))
-        if has_feature(dev, "config", "auto_target_humidity"):
+        if has_feature(dev, "details", "auto_target_humidity"):
             entities.append(VeSyncHumidifierTargetLevelHA(dev, coordinator))
         if has_feature(dev, "details", "warm_mist_level"):
             entities.append(VeSyncHumidifierWarmthLevelHA(dev, coordinator))
@@ -77,8 +77,8 @@ class VeSyncFanSpeedLevelHA(VeSyncNumberEntity):
     def __init__(self, device, coordinator) -> None:
         """Initialize the number entity."""
         super().__init__(device, coordinator)
-        self._attr_native_min_value = device._config_dict["levels"][0]
-        self._attr_native_max_value = device._config_dict["levels"][-1]
+        self._attr_native_min_value = device.fan_levels[0]
+        self._attr_native_max_value = device.fan_levels[-1]
         self._attr_native_step = 1
 
     @property
@@ -94,16 +94,16 @@ class VeSyncFanSpeedLevelHA(VeSyncNumberEntity):
     @property
     def native_value(self):
         """Return the fan speed level."""
-        return self.device.speed
+        return self.device.state.fan_level
 
     @property
     def extra_state_attributes(self):
         """Return the state attributes of the humidifier."""
-        return {"fan speed levels": self.device._config_dict["levels"]}
+        return {"fan speed levels": self.device.fan_levels}
 
-    def set_native_value(self, value):
+    async def async_set_native_value(self, value):
         """Set the fan speed level."""
-        self.device.change_fan_speed(int(value))
+        await self.device.change_fan_speed(int(value))
 
 
 class VeSyncHumidifierMistLevelHA(VeSyncNumberEntity):
@@ -112,8 +112,8 @@ class VeSyncHumidifierMistLevelHA(VeSyncNumberEntity):
     def __init__(self, device, coordinator) -> None:
         """Initialize the number entity."""
         super().__init__(device, coordinator)
-        self._attr_native_min_value = device._config_dict["mist_levels"][0]
-        self._attr_native_max_value = device._config_dict["mist_levels"][-1]
+        self._attr_native_min_value = device.mist_levels[0]
+        self._attr_native_max_value = device.mist_levels[-1]
         self._attr_native_step = 1
 
     @property
@@ -129,16 +129,16 @@ class VeSyncHumidifierMistLevelHA(VeSyncNumberEntity):
     @property
     def native_value(self):
         """Return the mist level."""
-        return self.device.details["mist_virtual_level"]
+        return self.device.state.mist_virtual_level
 
     @property
     def extra_state_attributes(self):
         """Return the state attributes of the humidifier."""
-        return {"mist levels": self.device._config_dict["mist_levels"]}
+        return {"mist levels": self.device.mist_levels}
 
-    def set_native_value(self, value):
+    async def async_set_native_value(self, value):
         """Set the mist level."""
-        self.device.set_mist_level(int(value))
+        await self.device.set_mist_level(int(value))
 
 
 class VeSyncHumidifierWarmthLevelHA(VeSyncNumberEntity):
@@ -147,8 +147,8 @@ class VeSyncHumidifierWarmthLevelHA(VeSyncNumberEntity):
     def __init__(self, device, coordinator) -> None:
         """Initialize the number entity."""
         super().__init__(device, coordinator)
-        self._attr_native_min_value = device._config_dict["warm_mist_levels"][0]
-        self._attr_native_max_value = device._config_dict["warm_mist_levels"][-1]
+        self._attr_native_min_value = device.warm_mist_levels[0]
+        self._attr_native_max_value = device.warm_mist_levels[-1]
         self._attr_native_step = 1
 
     @property
@@ -164,16 +164,16 @@ class VeSyncHumidifierWarmthLevelHA(VeSyncNumberEntity):
     @property
     def native_value(self):
         """Return the warmth level."""
-        return self.device.details["warm_mist_level"]
+        return self.device.state.warm_mist_level
 
     @property
     def extra_state_attributes(self):
         """Return the state attributes of the humidifier."""
-        return {"warm mist levels": self.device._config_dict["warm_mist_levels"]}
+        return {"warm mist levels": self.device.warm_mist_levels}
 
-    def set_native_value(self, value):
+    async def async_set_native_value(self, value):
         """Set the mist level."""
-        self.device.set_warm_level(int(value))
+        await self.device.set_warm_level(int(value))
 
 
 class VeSyncHumidifierTargetLevelHA(VeSyncNumberEntity):
@@ -199,7 +199,7 @@ class VeSyncHumidifierTargetLevelHA(VeSyncNumberEntity):
     @property
     def native_value(self):
         """Return the current target humidity level."""
-        return self.device.config["auto_target_humidity"]
+        return self.device.state.auto_target_humidity
 
     @property
     def native_unit_of_measurement(self):
@@ -217,6 +217,6 @@ class VeSyncHumidifierTargetLevelHA(VeSyncNumberEntity):
 
         return SensorDeviceClass.HUMIDITY
 
-    def set_native_value(self, value):
+    async def async_set_native_value(self, value):
         """Set the target humidity level."""
-        self.device.set_humidity(int(value))
+        await self.device.set_humidity(int(value))

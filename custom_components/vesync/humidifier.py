@@ -1,7 +1,5 @@
 """Support for VeSync humidifiers."""
 
-from __future__ import annotations
-
 import logging
 from collections.abc import Mapping
 from typing import Any
@@ -17,7 +15,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from pyvesync.vesyncfan import VeSyncHumid200300S
+from pyvesync.base_devices.humidifier_base import VeSyncHumidifier
 
 from .common import VeSyncDevice
 from .const import (
@@ -102,7 +100,7 @@ class VeSyncHumidifierHA(VeSyncDevice, HumidifierEntity):
     _attr_max_humidity = MAX_HUMIDITY
     _attr_min_humidity = MIN_HUMIDITY
 
-    def __init__(self, humidifier: VeSyncHumid200300S, coordinator) -> None:
+    def __init__(self, humidifier: VeSyncHumidifier, coordinator) -> None:
         """Initialize the VeSync humidifier device."""
         super().__init__(humidifier, coordinator)
         self.smarthumidifier = humidifier
@@ -129,17 +127,17 @@ class VeSyncHumidifierHA(VeSyncDevice, HumidifierEntity):
     @property
     def target_humidity(self) -> int:
         """Return the humidity we try to reach."""
-        return self.smarthumidifier.config["auto_target_humidity"]
+        return self.smarthumidifier.state.auto_target_humidity
 
     @property
     def mode(self) -> str | None:
         """Get the current preset mode."""
-        return _get_ha_mode(self.smarthumidifier.details["mode"])
+        return _get_ha_mode(self.smarthumidifier.state.mode)
 
     @property
     def is_on(self) -> bool:
         """Return True if humidifier is on."""
-        return self.smarthumidifier.enabled  # device_status is always on
+        return self.smarthumidifier.is_on  # device_status is always on
 
     @property
     def unique_info(self) -> str:
@@ -149,9 +147,8 @@ class VeSyncHumidifierHA(VeSyncDevice, HumidifierEntity):
     @property
     def extra_state_attributes(self) -> Mapping[str, Any]:
         """Return the state attributes of the humidifier."""
-
         attr = {}
-        for k, v in self.smarthumidifier.details.items():
+        for k, v in self.smarthumidifier.state.to_dict().items():
             if k in VS_TO_HA_ATTRIBUTES:
                 attr[VS_TO_HA_ATTRIBUTES[k]] = v
             elif k in self.state_attributes:
@@ -160,39 +157,31 @@ class VeSyncHumidifierHA(VeSyncDevice, HumidifierEntity):
                 attr[k] = v
         return attr
 
-    def set_humidity(self, humidity: int) -> None:
+    async def async_set_humidity(self, humidity: int) -> None:
         """Set the target humidity of the device."""
         if humidity not in range(self.min_humidity, self.max_humidity + 1):
             raise ValueError(
                 "{humidity} is not between {self.min_humidity} and {self.max_humidity} (inclusive)"
             )
-        if self.smarthumidifier.set_humidity(humidity):
-            self.schedule_update_ha_state()
-        else:
+        if not await self.smarthumidifier.set_humidity(humidity):
             raise ValueError("An error occurred while setting humidity.")
 
-    def set_mode(self, mode: str) -> None:
+    async def async_set_mode(self, mode: str) -> None:
         """Set the mode of the device."""
         if mode not in self.available_modes:
             raise ValueError(
                 "{mode} is not one of the valid available modes: {self.available_modes}"
             )
-        if self.smarthumidifier.set_humidity_mode(_get_vs_mode(mode)):
-            self.schedule_update_ha_state()
-        else:
+        vs_mode = _get_vs_mode(mode)
+        if not await self.smarthumidifier.set_mode(vs_mode):
             raise ValueError("An error occurred while setting mode.")
 
-    def turn_on(
-        self,
-        **kwargs,
-    ) -> None:
+    async def async_turn_on(self, **kwargs) -> None:
         """Turn the device on."""
-        success = self.smarthumidifier.turn_on()
-        if not success:
+        if not await self.smarthumidifier.turn_on():
             raise ValueError("An error occurred while turning on.")
 
-    def turn_off(self, **kwargs) -> None:
+    async def async_turn_off(self, **kwargs) -> None:
         """Turn the device off."""
-        success = self.smarthumidifier.turn_off()
-        if not success:
+        if not await self.smarthumidifier.turn_off():
             raise ValueError("An error occurred while turning off.")

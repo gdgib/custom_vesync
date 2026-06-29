@@ -1,6 +1,6 @@
 {
   "name": "Custom VeSync",
-  "homeassistant": "2024.12.0b0",
+  "homeassistant": "2025.11.0",
   "zip_release": true,
   "filename": "vesync.zip"
 }

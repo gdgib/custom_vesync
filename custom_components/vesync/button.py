@@ -54,7 +54,7 @@ def _setup_entities(devices, async_add_entities, coordinator):
     """Check if device is online and add entity."""
     entities = []
     for dev in devices:
-        if hasattr(dev, "cook_set_temp"):
+        if hasattr(dev.state, "cook_set_temp"):
             for stype in SENSOR_TYPES_CS158.values():
                 entities.append(  # noqa: PERF401
                     VeSyncairfryerButton(
@@ -91,6 +91,6 @@ class VeSyncairfryerButton(VeSyncBaseEntity, ButtonEntity):
         """Return the icon to use in the frontend, if any."""
         return self.stype[2]
 
-    def press(self) -> None:
-        """Return True if device is on."""
-        self.airfryer.end()
+    async def async_press(self) -> None:
+        """Press the button."""
+        await self.airfryer.end()

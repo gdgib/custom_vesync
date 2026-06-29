@@ -1,7 +1,5 @@
 """Config flow utilities."""
 
-from __future__ import annotations
-
 import logging
 from collections.abc import Mapping
 from typing import Any
@@ -43,6 +41,32 @@ def reauth_schema(
     }
 
 
+class VeSyncOptionsFlowHandler(config_entries.OptionsFlow):
+    """Handle VeSync integration options."""
+
+    async def async_step_init(self, user_input=None):
+        """Manage options."""
+
+        return await self.async_step_vesync_options()
+
+    async def async_step_vesync_options(self, user_input=None):
+        """Manage the VeSync options."""
+
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        options = {
+            vol.Required(
+                POLLING_INTERVAL,
+                default=self.config_entry.options.get(POLLING_INTERVAL, 60),
+            ): int,
+        }
+
+        return self.async_show_form(
+            step_id="vesync_options", data_schema=vol.Schema(options)
+        )
+
+
 class VeSyncFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow."""
 
@@ -76,7 +100,7 @@ class VeSyncFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             password = user_input[CONF_PASSWORD]
             polling_interval = user_input[POLLING_INTERVAL]
             manager = VeSync(username, password)
-            login = await self.hass.async_add_executor_job(manager.login)
+            login = await manager.login()
             if not login:
                 errors["base"] = "invalid_auth"
             else:
@@ -121,7 +145,7 @@ class VeSyncFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             password = user_input[CONF_PASSWORD]
             polling_interval = user_input[POLLING_INTERVAL]
             manager = VeSync(username, password)
-            login = await self.hass.async_add_executor_job(manager.login)
+            login = await manager.login()
             if not login:
                 errors["base"] = "invalid_auth"
             else:
@@ -148,29 +172,3 @@ class VeSyncFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         _LOGGER.debug("DHCP discovery detected device %s", hostname)
         self.context["title_placeholders"] = {"gateway_id": hostname}
         return await self.async_step_user()
-
-
-class VeSyncOptionsFlowHandler(config_entries.OptionsFlow):
-    """Handle VeSync integration options."""
-
-    async def async_step_init(self, user_input=None):
-        """Manage options."""
-
-        return await self.async_step_vesync_options()
-
-    async def async_step_vesync_options(self, user_input=None):
-        """Manage the VeSync options."""
-
-        if user_input is not None:
-            return self.async_create_entry(title="", data=user_input)
-
-        options = {
-            vol.Required(
-                POLLING_INTERVAL,
-                default=self.config_entry.options.get(POLLING_INTERVAL, 60),
-            ): int,
-        }
-
-        return self.async_show_form(
-            step_id="vesync_options", data_schema=vol.Schema(options)
-        )

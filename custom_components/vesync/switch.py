@@ -68,9 +68,9 @@ class VeSyncBaseSwitch(VeSyncDevice, SwitchEntity):
         """Initialize the VeSync outlet device."""
         super().__init__(plug, coordinator)
 
-    def turn_on(self, **kwargs):
+    async def async_turn_on(self, **kwargs):
         """Turn the device on."""
-        self.device.turn_on()
+        await self.device.turn_on()
 
 
 class VeSyncSwitchHA(VeSyncBaseSwitch, SwitchEntity):
@@ -95,10 +95,11 @@ class VeSyncSwitchHA(VeSyncBaseSwitch, SwitchEntity):
             else {}
         )
 
-    def update(self):
+    async def async_update(self):
         """Update outlet details and energy usage."""
-        self.smartplug.update()
-        self.smartplug.update_energy()
+        await self.smartplug.update()
+        if hasattr(self.smartplug, "update_energy"):
+            await self.smartplug.update_energy()
 
 
 class VeSyncLightSwitch(VeSyncBaseSwitch, SwitchEntity):
@@ -124,12 +125,15 @@ class VeSyncSwitchEntity(VeSyncBaseEntity, SwitchEntity):
         return EntityCategory.CONFIG
 
     def is_on_safe(self, keys):
-        """Return True if the given property is on."""
+        """Return True if the given state attribute is on."""
         for key in keys:
-            if key in self.device.details.keys():
-                return self.device.details[key]
+            val = getattr(self.device.state, key, None)
+            if val is not None:
+                return val
         _LOGGER.error(
-            f'Keys "{keys}" keys are not present in details "{self.device.details}" for "{super().name}"!'
+            'Keys "%s" are not present in state for "%s"!',
+            keys,
+            super().name,
         )
         return "unavailable"
 
@@ -154,15 +158,15 @@ class VeSyncFanChildLockHA(VeSyncSwitchEntity):
     @property
     def is_on(self):
         """Return True if it is locked."""
-        return super().is_on_safe(["child_lock"])
+        return self.device.state.child_lock
 
-    def turn_on(self, **kwargs):
+    async def async_turn_on(self, **kwargs):
         """Turn the lock on."""
-        self.device.child_lock_on()
+        await self.device.child_lock_on()
 
-    def turn_off(self, **kwargs):
+    async def async_turn_off(self, **kwargs):
         """Turn the lock off."""
-        self.device.child_lock_off()
+        await self.device.toggle_child_lock(False)
 
 
 class VeSyncHumidifierDisplayHA(VeSyncSwitchEntity):
@@ -185,15 +189,15 @@ class VeSyncHumidifierDisplayHA(VeSyncSwitchEntity):
     @property
     def is_on(self):
         """Return True if the display is on."""
-        return super().is_on_safe(["display", "screen_status"])
+        return super().is_on_safe(["display_status", "screen_status"])
 
-    def turn_on(self, **kwargs):
+    async def async_turn_on(self, **kwargs):
         """Turn the display on."""
-        self.device.turn_on_display()
+        await self.device.turn_on_display()
 
-    def turn_off(self, **kwargs):
+    async def async_turn_off(self, **kwargs):
         """Turn the display off."""
-        self.device.turn_off_display()
+        await self.device.turn_off_display()
 
 
 class VeSyncHumidifierAutomaticStopHA(VeSyncSwitchEntity):
@@ -216,15 +220,15 @@ class VeSyncHumidifierAutomaticStopHA(VeSyncSwitchEntity):
     @property
     def is_on(self):
         """Return True if automatic stop is on."""
-        return self.device.config["automatic_stop"]
+        return self.device.state.automatic_stop
 
-    def turn_on(self, **kwargs):
+    async def async_turn_on(self, **kwargs):
         """Turn the automatic stop on."""
-        self.device.automatic_stop_on()
+        await self.device.automatic_stop_on()
 
-    def turn_off(self, **kwargs):
+    async def async_turn_off(self, **kwargs):
         """Turn the automatic stop off."""
-        self.device.automatic_stop_off()
+        await self.device.automatic_stop_off()
 
 
 class VeSyncHumidifierAutoOnHA(VeSyncSwitchEntity):
@@ -247,13 +251,13 @@ class VeSyncHumidifierAutoOnHA(VeSyncSwitchEntity):
     @property
     def is_on(self):
         """Return True if in auto mode."""
-        return super().is_on_safe(["mode"]) == "auto"
+        return self.device.state.mode == "auto"
 
-    def turn_on(self, **kwargs):
+    async def async_turn_on(self, **kwargs):
         """Turn auto mode on."""
-        self.device.set_auto_mode()
+        await self.device.set_auto_mode()
 
-    def turn_off(self, **kwargs):
+    async def async_turn_off(self, **kwargs):
         """Turn auto off by setting manual and mist level 1."""
-        self.device.set_manual_mode()
-        self.device.set_mist_level(1)
+        await self.device.set_manual_mode()
+        await self.device.set_mist_level(1)
